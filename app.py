@@ -159,89 +159,6 @@ def mulch_thread(function , mulch_argu_list , mulch_divide):
     return data_list
 
 
-def get_data(browser , selected_country , start_time):
-    all_names = []
-    all_places = []
-    all_detail_URLs = []
-
-    # マルチスレッドの引数に商品名、場所、詳細ページURLを格納
-    mulch_argu_list = []
-    for loop in range( len(all_detail_URLs) ) :
-        name , place , detail_url = all_names[loop] , all_places[loop] , all_detail_URLs[loop]
-        place1 , place2 = place.split(", ")[1] , place.split(", ")[0]
-        mulch_argu_list.append([ name , place1 , place2 , detail_url ])
-   
-    # マルチスレッド処理でスクレイピングを実行
-    mulch_divide = 20
-    data_list = mulch_thread(mulch_scraping , mulch_argu_list , 20)
-    
-    return data_list
-
-
-def check_ip_address():
-    browser = browser_setup()
-    url = "https://www.cman.jp/network/support/go_access.cgi"
-    browser.get(url)
-    wait = WebDriverWait(browser, 10)
-    ip_address = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#tmContHeadStr > div > div:nth-child(1) > div.inArea > div.outIp'))).text
-    st.write(f"<h5>IPアドレスは{ip_address}</h5>", unsafe_allow_html=True)
-
-
-# def mulch_scraping(main_keyword):
-#     browser = browser_setup()
-#     url = 'https://www.google.com'
-#     browser.get(url)
-
-#     # 検索窓にキーワードを入力
-#     search_box = browser.find_element(By.CSS_SELECTOR, '#APjFqb')
-#     search_box.send_keys(main_keyword)
-#     search_box.send_keys(Keys.ENTER)
-    
-#     # キーワードリストの表示件数をマックスにする
-#     while True:
-#         try:
-#             wait = WebDriverWait(browser, 10)
-#             select_form = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > div > select')))
-#             break
-#         except TimeoutException:
-#             browser.refresh()
-
-
-#     display_options = select_form.find_elements(By.CSS_SELECTOR, f"option")
-#     last_option = display_options[-1]
-#     last_option.click()
-#     max_display = int( last_option.text )
-
-#     soup = BeautifulSoup( browser.page_source , 'html.parser')
-#     max_keyword_number = soup.select_one('div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > span.Text__StyledText-sc-8gmuv2-0.iOqoWa').text
-#     max_keyword_number = int( max_keyword_number[max_keyword_number.index("of") + len("of"):] )
-#     st.write(f"取得できるキーワードの合計数 : {max_keyword_number}")
-
-#     # サジェストキーワード・volを取得
-#     all_data = []
-#     while True:
-#         for loop in range( max_display ):
-#             try:
-#                 suggest_keyword = browser.find_element(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > table > tbody > tr:nth-child({loop + 1}) > td.Tablestyled__TableData-sc-1ee2h7w-2.sc-eCYdqJ.eDAaSZ.jRDney > div > span > a").text
-#                 search_vol = browser.find_element(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > table > tbody > tr:nth-child({loop + 1}) > td:nth-child(4) > span").text
-#             except NoSuchElementException:
-#                 break
-#             data = {
-#                 'suggest keyword':suggest_keyword,
-#                 'search vol.':search_vol,
-#             }
-#             all_data.append(data)
-#         if len(all_data) == max_keyword_number:
-#             break
-#         try:
-#             next_list_buttons = browser.find_elements(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > button")
-#             next_list_button = next_list_buttons[1]
-#             next_list_button.click()
-#         except NoSuchElementException:
-#             break
-    
-#     return all_data
-
 def remove_commas(string):
     if ',' in string:
         string = string.replace(',', '')
@@ -289,20 +206,20 @@ def main():
     st.title("サジェストキーワードとそのvolを取得")
     st.write("<p></p>", unsafe_allow_html=True)
     main_keyword = st.text_input("キーワードを入力してください")
-    st.write("<p></p>", unsafe_allow_html=True)
 
     if st.button("検索ボリュームを取得"):
         all_data = mulch_scraping(main_keyword)
         df = pd.DataFrame(all_data)
         # CSVファイルのダウンロードボタンを表示
         csv = df.to_csv(index=False)
+        st.write("<p></p>", unsafe_allow_html=True)
         st.download_button(
             label='CSV形式でダウンロード',
             data=csv,
             file_name='サジェストキーワードの検索vol.csv',
             mime='text/csv'
         )
-        st.write(df)
+        st.write(csv)
 
 
 
