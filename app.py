@@ -35,7 +35,7 @@ def browser_setup():
     """ブラウザを起動する関数"""
     #ブラウザの設定
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     options.add_extension("Keyword_Surfer.crx")  # 拡張機能の追加
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
