@@ -219,7 +219,7 @@ def main():
             file_name='サジェストキーワードの検索vol.csv',
             mime='text/csv'
         )
-        st.st.dataframe(df)
+        st.dataframe(df)
 
 
 if __name__ == '__main__':
