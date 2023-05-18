@@ -35,7 +35,7 @@ def browser_setup():
     """ブラウザを起動する関数"""
     #ブラウザの設定
     options = webdriver.ChromeOptions()
-    # options.add_argument('--headless')
+    options.add_argument('--headless')
     options.add_extension("Keyword_Surfer.crx")  # 拡張機能の追加
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
@@ -246,7 +246,7 @@ def mulch_scraping(main_keyword):
 
 def main():
     st.write("<p></p>", unsafe_allow_html=True)
-    st.title("サジェストキーワードの検索volを取得")
+    st.title("サジェストキーワードとそのvolを取得")
     st.write("<p></p>", unsafe_allow_html=True)
     main_keyword = st.text_input("キーワードを入力してください")
     st.write("<p></p>", unsafe_allow_html=True)
