@@ -188,60 +188,101 @@ def check_ip_address():
     st.write(f"<h5>IPアドレスは{ip_address}</h5>", unsafe_allow_html=True)
 
 
+# def mulch_scraping(main_keyword):
+#     browser = browser_setup()
+#     url = 'https://www.google.com'
+#     browser.get(url)
+
+#     # 検索窓にキーワードを入力
+#     search_box = browser.find_element(By.CSS_SELECTOR, '#APjFqb')
+#     search_box.send_keys(main_keyword)
+#     search_box.send_keys(Keys.ENTER)
+    
+#     # キーワードリストの表示件数をマックスにする
+#     while True:
+#         try:
+#             wait = WebDriverWait(browser, 10)
+#             select_form = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > div > select')))
+#             break
+#         except TimeoutException:
+#             browser.refresh()
+
+
+#     display_options = select_form.find_elements(By.CSS_SELECTOR, f"option")
+#     last_option = display_options[-1]
+#     last_option.click()
+#     max_display = int( last_option.text )
+
+#     soup = BeautifulSoup( browser.page_source , 'html.parser')
+#     max_keyword_number = soup.select_one('div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > span.Text__StyledText-sc-8gmuv2-0.iOqoWa').text
+#     max_keyword_number = int( max_keyword_number[max_keyword_number.index("of") + len("of"):] )
+#     st.write(f"取得できるキーワードの合計数 : {max_keyword_number}")
+
+#     # サジェストキーワード・volを取得
+#     all_data = []
+#     while True:
+#         for loop in range( max_display ):
+#             try:
+#                 suggest_keyword = browser.find_element(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > table > tbody > tr:nth-child({loop + 1}) > td.Tablestyled__TableData-sc-1ee2h7w-2.sc-eCYdqJ.eDAaSZ.jRDney > div > span > a").text
+#                 search_vol = browser.find_element(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > table > tbody > tr:nth-child({loop + 1}) > td:nth-child(4) > span").text
+#             except NoSuchElementException:
+#                 break
+#             data = {
+#                 'suggest keyword':suggest_keyword,
+#                 'search vol.':search_vol,
+#             }
+#             all_data.append(data)
+#         if len(all_data) == max_keyword_number:
+#             break
+#         try:
+#             next_list_buttons = browser.find_elements(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > button")
+#             next_list_button = next_list_buttons[1]
+#             next_list_button.click()
+#         except NoSuchElementException:
+#             break
+    
+#     return all_data
+
+def remove_commas(string):
+    if ',' in string:
+        string = string.replace(',', '')
+    return string
+
+
 def mulch_scraping(main_keyword):
     browser = browser_setup()
-    url = 'https://www.google.com'
+    url = 'https://ruri-co.biz-samurai.com'
     browser.get(url)
 
     # 検索窓にキーワードを入力
-    search_box = browser.find_element(By.CSS_SELECTOR, '#APjFqb')
+    search_box = browser.find_element(By.CSS_SELECTOR, '#keyword')
     search_box.send_keys(main_keyword)
     search_box.send_keys(Keys.ENTER)
-    
-    # キーワードリストの表示件数をマックスにする
-    while True:
-        try:
-            wait = WebDriverWait(browser, 10)
-            select_form = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > div > select')))
-            break
-        except TimeoutException:
-            browser.refresh()
 
-
-    display_options = select_form.find_elements(By.CSS_SELECTOR, f"option")
-    last_option = display_options[-1]
-    last_option.click()
-    max_display = int( last_option.text )
+    # 利用規約の確認ボタン
+    time.sleep(2)
+    site_rule_button = browser.find_element(By.CSS_SELECTOR, 'body > div.ui.dimmer.modals.page.transition.visible.active > div > div.actions > button.ui.green.ok.button')
+    site_rule_button.click()
+    time.sleep(2)
 
     soup = BeautifulSoup( browser.page_source , 'html.parser')
-    max_keyword_number = soup.select_one('div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > span.Text__StyledText-sc-8gmuv2-0.iOqoWa').text
-    max_keyword_number = int( max_keyword_number[max_keyword_number.index("of") + len("of"):] )
-    st.write(f"取得できるキーワードの合計数 : {max_keyword_number}")
+    suggest_keyword_list = soup.select(f'div > div.ui.active.tab.segment > div.ui.bottom.active.tab.segment > analyzed-by-keyword-rank > table > tbody > tr > td:nth-child(1)')
+    search_vol_list = soup.select(f'#s_04 > div > div.ui.active.tab.segment > div.ui.bottom.active.tab.segment > analyzed-by-keyword-rank > table > tbody > tr > td:nth-child(2)')
 
-    # サジェストキーワード・volを取得
     all_data = []
-    while True:
-        for loop in range( max_display ):
-            try:
-                suggest_keyword = browser.find_element(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > table > tbody > tr:nth-child({loop + 1}) > td.Tablestyled__TableData-sc-1ee2h7w-2.sc-eCYdqJ.eDAaSZ.jRDney > div > span > a").text
-                search_vol = browser.find_element(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > table > tbody > tr:nth-child({loop + 1}) > td:nth-child(4) > span").text
-            except NoSuchElementException:
-                break
-            data = {
-                'suggest keyword':suggest_keyword,
-                'search vol.':search_vol,
-            }
-            all_data.append(data)
-        if len(all_data) == max_keyword_number:
-            break
-        try:
-            next_list_buttons = browser.find_elements(By.CSS_SELECTOR, f"div.surfer-sidebar-widget > div > div.Flex-sc-2o6vrg-0.sc-crXcEl.eTEmFm.lfbenK > div > div > button")
-            next_list_button = next_list_buttons[1]
-            next_list_button.click()
-        except NoSuchElementException:
-            break
+    for loop in range(len(suggest_keyword_list)):
+        suggest_keyword = suggest_keyword_list[loop].text
+        search_vol = search_vol_list[loop].text
+        search_vol = int( remove_commas(search_vol) )
+        data = {
+            'suggest keyword':suggest_keyword,
+            'search vol':search_vol,
+        }
+        all_data.append(data)
     
-    return all_data
+    sorted_all_data = sorted(all_data, key=lambda x: x['search vol'], reverse=True)
+    return sorted_all_data
+
 
 
 def main():
